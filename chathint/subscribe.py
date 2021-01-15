@@ -18,6 +18,11 @@
 # 3. sudo pip install firebase-admin
 
 import firebase_admin
+from firebase_admin import messaging
+
+# update this with you Firebase credentials
+from firebase_admin import credentials
+cred = credentials.Certificate('/home/alex/Downloads/chat/threshold-chat-firebase-adminsdk-fg92b-3258681a34.json')
 
 # This is registration token received on mobile phone from the client FCM SDKs.
 # There is no way to receive it in Python: it is specific to the given app installation on the phone.
@@ -28,13 +33,18 @@ import firebase_admin
 # Replace this token with yours!
 registration_token = "eT6B_xQRRFGVtK8xa71zBp:APA91bE9IK2wQtJkoLvEQdjhASPvmdFzxJs-sWedpbh3nSbUWinmtVZ10A8bun4YxG5UXaQHK3ExRZajQSYetdk-Yil-TEkKNjz03b_n45Yp5zV9ZHExtlIlbwr5dd5ukpNSQbx9RkuO"
 
-# To make this initialization work you must have Firebase credentials in a file identified by environment variable in ~/.bashrc:
+reg_token2 = "e7Kvae-1T7m54syh-qcDs1:APA91bH4CFtJCssNcPN1OEubMat88zXzW7qrzA2zHzPtzQ6lJa1ddNYuEAAXcDxqXcgvoIKjLc6jOYtYW7QcysgHXRKFLe6AU69kNVqvOZlaTQuA3cHtE8YK1BYFb8wFkrYYpexBrrVf"
+
+# default initialization based on 
 # export GOOGLE_APPLICATION_CREDENTIALS="/home/alex/Downloads/chat/threshold-chat-firebase-adminsdk-fg92b-3258681a34.json"
 # Mentor will give this file. You must not commit it into GitHub!!!
-firebase_admin.initialize_app()
+# firebase_admin.initialize_app()
+
+# initialization with explicitly indicated credentials
+firebase_admin.initialize_app(cred) 
 
 # Now we can subscribe the client to our Chat.
-resp = messaging.subscribe_to_topic(token, "ThresholdChat")
+resp = messaging.subscribe_to_topic(registration_token, "ThresholdChat")
 
 # you may check success as follows
 # print(resp.success_count)
