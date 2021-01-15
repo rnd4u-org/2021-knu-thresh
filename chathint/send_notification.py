@@ -16,7 +16,7 @@
 # ================================================================================
 # 1. read https://firebase.google.com/docs/admin/setup
 # 2. sudo apt install python3-pip
-# 3. sudo pip install firebase-admin
+# 3. sudo pip3 install firebase-admin
 
 import firebase_admin
 from firebase_admin import messaging
