@@ -1,7 +1,7 @@
 from threshold_crypto import (ThresholdCrypto, ThresholdParameters)
 
 # Generate parameters, public key and shares
-key_params = ThresholdCrypto.generate_key_parameters(512)
+key_params = ThresholdCrypto.generate_key_parameters(256)
 thresh_params = ThresholdParameters(3, 5)
 pub_key, key_shares = ThresholdCrypto.create_public_key_and_shares_centralized(key_params, thresh_params)
 
