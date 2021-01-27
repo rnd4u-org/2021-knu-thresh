@@ -34,7 +34,7 @@ import nacl.encoding
 import nacl.exceptions
 import nacl.hash
 
-from threshold_crypto import number
+from threshhold_test.threshold_crypto import number
 
 
 class ThresholdCryptoError(Exception):

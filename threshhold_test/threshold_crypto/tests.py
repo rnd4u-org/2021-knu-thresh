@@ -1,15 +1,15 @@
 import unittest
 
-from threshold_crypto import (ThresholdCrypto,
-                              ThresholdParameters,
-                              KeyParameters,
-                              PolynomMod,
-                              ThresholdCryptoError,
-                              PublicKey,
-                              KeyShare,
-                              EncryptedMessage,
-                              PartialDecryption,
-                              number)
+from threshhold_test.threshold_crypto import (ThresholdCrypto,
+                                              ThresholdParameters,
+                                              KeyParameters,
+                                              PolynomMod,
+                                              ThresholdCryptoError,
+                                              PublicKey,
+                                              KeyShare,
+                                              EncryptedMessage,
+                                              PartialDecryption,
+                                              number)
 
 
 class TCTestCase(unittest.TestCase):
