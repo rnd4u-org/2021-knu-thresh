@@ -18,35 +18,36 @@ class TestEncrypting(unittest.TestCase):
 
     def test_latin(self):
         self.assertEqual(
-            encrypting_and_decrypting(ThresholdCrypto.static_2048_key_parameters(), ThresholdParameters(3, 5), 'Secret message of Pavlo Pinchuk'),
+            encrypting_and_decrypting(ThresholdCrypto.static_2048_key_parameters(), ThresholdParameters(3, 5),
+                                      'Secret message of Pavlo Pinchuk'),
             'Secret message of Pavlo Pinchuk')
-
 
     def test_cyrillic(self):
         self.assertEqual(
-            encrypting_and_decrypting(ThresholdCrypto.static_1024_key_parameters(), ThresholdParameters(2, 5), 'Секретное послание Пинчука Павла'),
+            encrypting_and_decrypting(ThresholdCrypto.static_1024_key_parameters(), ThresholdParameters(2, 5),
+                                      'Секретное послание Пинчука Павла'),
             'Секретное послание Пинчука Павла')
-
 
     def test_symbolic(self):
         self.assertEqual(
-            encrypting_and_decrypting(ThresholdCrypto.generate_key_parameters(256), ThresholdParameters(3, 5), '$ecre! me&&a@e @f P@^!() P!n(huk'),
+            encrypting_and_decrypting(ThresholdCrypto.generate_key_parameters(256), ThresholdParameters(3, 5),
+                                      '$ecre! me&&a@e @f P@^!() P!n(huk'),
             '$ecre! me&&a@e @f P@^!() P!n(huk')
-
 
     def test_hieroglyphs(self):
         self.assertEqual(
-            encrypting_and_decrypting(ThresholdCrypto.static_1024_key_parameters(), ThresholdParameters(3, 5), 'Paul Pinchuk의 비밀 메시지'),
+            encrypting_and_decrypting(ThresholdCrypto.static_1024_key_parameters(), ThresholdParameters(3, 5),
+                                      'Paul Pinchuk의 비밀 메시지'),
             'Paul Pinchuk의 비밀 메시지')
-
 
     def test_special_symbolic(self):
         self.assertEqual(
-            encrypting_and_decrypting(ThresholdCrypto.static_1024_key_parameters(), ThresholdParameters(3, 5), 'Secret message of Pavlo Pinchuk\u00a9'),
+            encrypting_and_decrypting(ThresholdCrypto.static_1024_key_parameters(), ThresholdParameters(3, 5),
+                                      'Secret message of Pavlo Pinchuk\u00a9'),
             'Secret message of Pavlo Pinchuk\u00a9')
-
 
     def test_long_message(self):
         self.assertEqual(
-            encrypting_and_decrypting(ThresholdCrypto.static_1024_key_parameters(), ThresholdParameters(3, 5), 'Secret message of Pavlo Pinchuk' * 1000),
+            encrypting_and_decrypting(ThresholdCrypto.static_1024_key_parameters(), ThresholdParameters(3, 5),
+                                      'Secret message of Pavlo Pinchuk' * 1000),
             'Secret message of Pavlo Pinchuk' * 1000)
