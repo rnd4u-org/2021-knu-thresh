@@ -21,35 +21,35 @@ def encrypt_decrypt(message, key_params, thresh_params, shares):
 
 class TestEncryptDecrypt(unittest.TestCase):
 
-    def test1(self):
+    def test_latin_and_symbols(self):
         message = "$Some@ #secret% &message* *to& %be# @encrypted$"
         key_params = ThresholdCrypto.static_2048_key_parameters()
         thresh_params = ThresholdParameters(3, 5)
         shares = (0, 2, 3)
         self.assertEqual(encrypt_decrypt(message, key_params, thresh_params, shares), message)
 
-    def test2(self):
+    def test_cyrillic(self):
         message = "Деяке повідомлення для шифрування"
         key_params = ThresholdCrypto.static_2048_key_parameters()
         thresh_params = ThresholdParameters(3, 5)
         shares = (0, 2, 3)
         self.assertEqual(encrypt_decrypt(message, key_params, thresh_params, shares), message)
 
-    def test3(self):
+    def test_new_key(self):
         message = "Some secret message to be encrypted"
         key_params = ThresholdCrypto.generate_key_parameters(128)
         thresh_params = ThresholdParameters(3, 5)
         shares = (0, 2, 3)
         self.assertEqual(encrypt_decrypt(message, key_params, thresh_params, shares), message)
 
-    def test4(self):
+    def test_long_message(self):
         message = "Some long secret message to be encrypted" * 10000
         key_params = ThresholdCrypto.static_2048_key_parameters()
         thresh_params = ThresholdParameters(3, 5)
         shares = (0, 2, 3)
         self.assertEqual(encrypt_decrypt(message, key_params, thresh_params, shares), message)
 
-    def test5(self):
+    def test_japanese(self):
         message = "暗号化されるいくつかの秘密のメッセージ"
         key_params = ThresholdCrypto.static_2048_key_parameters()
         thresh_params = ThresholdParameters(3, 5)

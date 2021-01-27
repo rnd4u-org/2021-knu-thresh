@@ -17,9 +17,8 @@ def decrypt_message_multi_threading(k, encrypted_message, shares, key_shares, th
     threads = []
 
     for i in range(k):
-        threads.append(threading.Thread(target=part_decrypt, args=(shares[i], )))
-
-    for thread in threads:
+        thread = threading.Thread(target=part_decrypt, args=(shares[i], ))
+        threads.append(thread)
         thread.start()
 
     for thread in threads:
@@ -41,4 +40,4 @@ encrypted_message = ThresholdCrypto.encrypt_message(message, pub_key)
 
 # build partial decryptions combine these partial decryptions to recover the message
 decrypted_message = decrypt_message_multi_threading(3, encrypted_message, (0, 2, 1), key_shares, thresh_params, key_params)
-print(decrypted_message)
+
