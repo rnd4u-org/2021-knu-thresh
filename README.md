@@ -1,2 +1,3 @@
 # 2021-knu-thresh
-Threshold Crypto task
+Threshold Crypto task   
+Denis Krivtsov
