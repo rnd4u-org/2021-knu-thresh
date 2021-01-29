@@ -1,8 +1,7 @@
 from random import randint
 from sympy import poly
 from sympy.abc import x, y
-from ThresholdCryptoLib import threshold_crypto
-from threshold_crypto import number
+from threshold_crypto_lib import number
 
 def create_nodes(n):
     nodes = []
