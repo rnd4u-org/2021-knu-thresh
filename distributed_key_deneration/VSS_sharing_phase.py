@@ -4,6 +4,7 @@ from sympy.abc import x
 from sympy.polys.polyfuncs import interpolate
 from threshold_crypto import number
 
+from wiki import _lagrange_interpolate
 
 def create_nodes(n):
     nodes = []
@@ -13,6 +14,7 @@ def create_nodes(n):
 
 
 def recovering_initialization(nodes):
+
     n = nodes[0].session_parameters.n
     reconstruct_list = []
     for i in range(n):
