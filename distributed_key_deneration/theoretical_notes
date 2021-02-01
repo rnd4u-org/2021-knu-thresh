@@ -1,0 +1,104 @@
+"Distributed Key Generation in the Wild"
+
+
+>>> 4 VSS for the Hybrid Model—HybridVSS   (VSS is the fundamental building block for DKG)
+
+4.1 Construction
+
+As usual, our VSS protocol is composed of a sharing protocol (Sh) and a reconstruction protocol
+(Rec). In protocol Sh, a dealer Pd upon receiving an input message (Pd, τ, in,share, s), shares the
+secret s, where a counter τ and the dealer identity Pd forms a unique session identifier.
+Node Pi finishes the Sh protocol by outputting a (Pd, τ, out,shared, C, si) message, where C is the commitment
+and si is its secret share. Any time after that, upon receiving an input message (Pd, τ, in, reconstruct),
+Pi starts the Rec protocol. The Rec protocol terminates for a node Pi by outputting a message
+(Pd, τ, out,reconstructed, zi), where zi is Pi’s reconstructed value of the secret s.
+
+Definition 4.1. In session (Pd, τ ), protocol VSS in our hybrid model (HybridVSS) having an asynchronous network of
+n ≥ 3t + 2f + 1 nodes with a t-limited Byzantine adversary and f-limited  crashes and network failures
+satisfies the following conditions:
+
+> Liveness. If the dealer Pd is honest and finally up in the sharing stage of session (Pd, τ ), then all
+honest finally up nodes complete protocol Sh.
+> Agreement. If some honest node completes protocol Sh of session (Pd, τ ), then all honest finally
+up nodes will eventually complete protocol Sh in session (Pd, τ ). If all honest finally up nodes
+subsequently start protocol Rec for session (Pd, τ ), then all honest finally up nodes will finish
+protocol Rec in session (Pd, τ ).
+> Correctness. Once t + 1 honest nodes complete protocol Sh of session (Pd, τ ), then there exists a
+fixed value z such that
+• if the dealer is honest and has shared secret s in session (Pd, τ ), then z = s, and
+• if an honest node Pi reconstructs zi in session (Pd, τ ), then zi = z.
+> Secrecy. If an honest dealer has shared secret s in session (Pd, τ ) and no honest node has started
+the Rec protocol, then, except with negligible probability, the adversary cannot compute the shared secret s.
+> Efficiency. The bit complexity for any instance of HybridVSS is d-uniformly bounded.
+
+C is a matrix of commitment entries and eC and rC are Pi’s associated counters for echo and ready messages.
+In order to facilitate recovery of the crashed nodes, each node Pi stores all outgoing messages along with
+their intended recipients in a set B. B`indicates the subset of B intended for the node P`.
+Counters cnt and cnt` keep track of the numbers of overall help requests and help requests sent by each
+node P` respectively.
+
+verify-poly(C, i, a) verifies that the given polynomial a of Pi is consistent with the commitment C.
+
+verify-point(C, i, m, α) verifies that the given value α corresponds to the polynomial evaluation φ(m, i).
+
+Note that the AVSS and our HybridVSS schemes use bivariate polynomials, as they guarantee that
+the interpolated polynomials a are of degree t or less.
+
+>>> Introduction
+
+efficient verifiable secret sharing (VSS)
+necessity of Byzantine agreement for asynchronous DKG
+
+Numerous online cryptographic applications require a trusted authority to hold a secret.
+However, this requirement always leads to the problem of single point of failure and
+sometimes to the more undesirable problem of key escrow.
+
+(n, t)-DKG protocol allows a set of n nodes to collectively generate a secret
+with its shares spread over the nodes such that any subset of size greater than a threshold t
+can reveal or use the shared secret, while smaller subsets do not have any knowledge about it.
+
+DKG requires no trusted party
+
+At least n − t − f nodes, which are not in the crashed state at the end of a protocol, are termed finally up nodes.
+
+>>> 3.1 Verifiable Secret Sharing
+
+In some secret sharing applications, clients may need to verify a consistent dealing to prevent malicious behaviour
+by the dealer. A scheme with such a verifiability guarantee is known as verifiable secret sharing (VSS) scheme
+
+Definition 3.2. An (n, t)-VSS scheme consists of two phases: the sharing (Sh) phase and the
+reconstruction (Rec) phase.
+Sh phase. A dealer Pd distributes a secret s ∈ K among n nodes, where K is a sufficiently large
+key space. At the end of the Sh phase, each honest node Pi holds a share si of the distributed
+secret s.
+Rec phase. In this phase, each node Pi broadcasts its secret share s0i and a reconstruction function is applied
+in order to compute the secret s = Rec(s01, s02, . . . , s0n) or output ⊥ indicating that Pd is malicious.
+For honest nodes s0i = si, while for malicious nodes s0i may be different from si or even absent.
+
+It has two security requirements:
+Secrecy (VSS-wS). A t-limited adversary who can compromise t nodes cannot compute s during the Sh phase.
+Correctness (VSS-C). The reconstructed value should be equal to the shared secret s or every
+honest node concludes that Pd is malicious by outputting ⊥.
+
+>>> 3.2 Homomorphic Commitments
+
+A verification mechanism for a consistent dealing is fundamental to VSS.  In the computational setting,
+homomorphic commitments provide an efficient alternative.
+
+>>> 3.3 Distributed Key Generation
+
+Pedersen introduced the concept of distributed key generation (DKG) and developed a DKG scheme.
+Here, each node runs a VSS instance and distributed shares are added at the end to generate
+a combined shared secret without a dealer. Unlike VSS, DKG requires no trusted party.
+
+Definition 3.3. An (n, t)-DKG scheme consists of two phases: the sharing (Sh) phase and the reconstruction (Rec) phase.
+Sh phase. Every node Pi distributes a secret zi ∈ K among n nodes, where K is a sufficiently large
+additive cyclic group. At the end of the Sh phase, each honest node Pi holds a share si of the distributed secret s,
+which is a pre-decided linear combination of the shared zi values.
+Rec phase. Each node Pi broadcasts its secret share s0i and a reconstruction function is applied in order
+to compute the secret s = Rec(s01, s02, . . . , s0n) or output ⊥ indicating that Pd is malicious.
+For honest nodes s0i = si, while for malicious nodes s0i may be different from si or even absent.
+
+DKG has numerous application in cryptography. we concentrate on threshold cryptosystems in the DLog setting.
+In this setting, having a cyclic group G of prime order p, a DKG protocol generates secret sharing of
+a secret s ∈ Zp, and publishes Y = (g, g**s) for g ∈ G as the corresponding public key.
