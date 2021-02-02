@@ -8,7 +8,7 @@ from session import SessionParameters, SessionError
 class VSSTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.session_parameters = SessionParameters(7, 5, 0, 4)
+        self.session_parameters = SessionParameters(7, 4, 1, 4)
         self.dealer = Dealer()
         self.node = Node()
         self.nodes = session.create_nodes(7)

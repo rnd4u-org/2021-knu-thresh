@@ -1,3 +1,5 @@
+""" Lagrange interpolation"""
+
 def extended_gcd(a, b):
     """
     Division in integers modulus p means finding the inverse of the

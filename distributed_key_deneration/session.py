@@ -27,25 +27,30 @@ def create_nodes(n):
     return nodes
 
 
-def pd_send_messages(dealer, nodes):
+def pd_send_messages(dealer, nodes, key_length):
     """
     Call dealer to get prime_p, gen_g, matrix_CPd, polynoms, generate secret and send necessary information to nodes
     :param dealer: dealer
     :param nodes: list of participants
+    :param key_length: 512, 1024 or 2048
     :return:  pd_results_polynoms - individual polynoms Phi[i][y] for each node_i
               pd_results_matrix - matrix to verify dealer and nodes
     """
-    prime_p, gen_g, matrix_CPd, polynoms = dealer.call_dealer()
+    prime_p, prime_q, gen_g, matrix_CPd, polynoms = dealer.call_dealer(key_length)
 
     n = dealer.session_parameters.n
     pd_results_polynoms = []
     pd_results_matrix = []
+    bad_dealer = 0
     for i in range(n):
-        matrix_C, polynom_values = nodes[i].call_node("Pd", prime_p, gen_g, matrix_CPd, polynoms[i])
+        matrix_C, polynom_values = nodes[i].call_node("Pd", prime_p, prime_q, gen_g, matrix_CPd, polynoms[i])
         if matrix_C != -1:
             pd_results_matrix.append(matrix_C)
             pd_results_polynoms.append(polynom_values)
-
+        else:
+            bad_dealer += 1
+    if bad_dealer >= dealer.session_parameters.t + dealer.session_parameters.f:
+        raise SessionError("BAD DEALER")
     return pd_results_polynoms, pd_results_matrix
 
 
@@ -85,11 +90,12 @@ def ready_send_messages(nodes, n, echos_results, echos_results_matrix):
             nodes[j].call_node("ready", echos_results_matrix[i], echos_results[i][j], i + 1)
 
 
-def sharing_initialization(dealer, nodes, n, t, f):
+def sharing_initialization(dealer, nodes, key_length, n, t, f):
     """
     Provides sharing phase
     :param dealer: dealer
     :param nodes: list of participants
+    :param key_length: 512, 1024 or 2048
     :param n: number of participants
     :param t: threshold (requires more than t nodes to reconstruct the secret)
     :param f: count of possible crashed nodes
@@ -104,7 +110,7 @@ def sharing_initialization(dealer, nodes, n, t, f):
 
     dealer.set_session_parameters(session_parameters)
 
-    pd_results_polynoms, pd_results_matrix = pd_send_messages(dealer, nodes)
+    pd_results_polynoms, pd_results_matrix = pd_send_messages(dealer, nodes, key_length)
     echos_results, echos_results_matrix = echo_send_messages(nodes, n, pd_results_polynoms, pd_results_matrix)
     ready_send_messages(nodes, n, echos_results, echos_results_matrix)
 
@@ -131,15 +137,16 @@ def recovering_initialization(nodes, dealer):
     print("secret is valid", dealer.secret == secret_list[0])
 
 
-def session_initialisation(dealer, nodes, n, t, f):
+def session_initialisation(dealer, nodes, key_length, n, t, f):
     """
     Initiate session
     :param dealer: dealer
     :param nodes: list of participants
+    :param key_length: 512, 1024 or 2048
     :param n: number of participants
     :param t: threshold (requires more than t nodes to reconstruct the secret)
     :param f: count of possible crashed nodes
     :return:
     """
-    sharing_initialization(dealer, nodes, n, t, f)
+    sharing_initialization(dealer, nodes, key_length, n, t, f)
     recovering_initialization(nodes, dealer)
