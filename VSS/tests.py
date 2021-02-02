@@ -1,9 +1,9 @@
 import unittest
 
-from VSS.participants import Node, Dealer
-from VSS.session import *
-from VSS.VSS_run_session import *
-from VSS.session import SessionParameters, SessionError
+from participants import Node, Dealer
+import session, VSS_run_session
+from session import SessionParameters, SessionError
+
 
 
 class VSSTestCase(unittest.TestCase):
