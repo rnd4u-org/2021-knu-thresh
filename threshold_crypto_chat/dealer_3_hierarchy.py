@@ -1,25 +1,34 @@
+"""
+Update crypto parameters in firestore db
+"""
+
 import firebase_admin
 from firebase_admin import firestore, credentials
 from threshold_crypto import ThresholdCrypto, ThresholdParameters
 import uuid
 
 
-cred = credentials.Certificate(r'C:\Users\asus\Downloads\Telegram Desktop\thresholdcryptochat-firebase-adminsdk-efq0t-9f4616190a.json')
+cred = credentials.Certificate(r'C:\Users\asus\Downloads\Telegram Desktop\votechatcrypto-firebase-adminsdk-qr0f2-6de712738a.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
-users = [u'karina', u'dmytro', u'pavlo', u'heorhii']
+users = [u'karina', u'dmytro']
+sp_user = u'pavlo'
 
-def clear_collection(db, collection):
-    data = db.collection(collection)
+def clear_collection(db):
+    """
+    Clear u'key_params' collection
+    """
+    data = db.collection(u'key_params')
     for d in data.stream():
         d.reference.delete()
 
-clear_collection(db, u'key_params')
+clear_collection(db)
 
 
 def create_crypto_params_int():
 
     key_params = ThresholdCrypto.static_2048_key_parameters()
+    # 3 users but 4 shares, threshold = 2
     thresh_params = ThresholdParameters(2, 4)
     pub_key, key_shares = ThresholdCrypto.create_public_key_and_shares_centralized(key_params, thresh_params)
     p = key_params.p
@@ -37,7 +46,9 @@ def create_crypto_params_int():
 
 
 def create_crypto_params_str(p, q, g, n, t, pub_key, share1, share2, share3, share4):
-
+    """
+    Prepare crypto parameters to store in firestore db
+    """
     p = str(p)
     q = str(q)
     g = str(g)
@@ -55,8 +66,13 @@ p, q, g, n, t, pub_key, share1, share2, share3, share4 = create_crypto_params_st
                                                                               share1, share2, share3, share4)
 shares = [share1, share2, share3, share4]
 
+# Send crypto parameters to users
 i = 0
 for user in users:
     doc_ref = db.collection(u'key_params').document(str(uuid.uuid4()))
     doc_ref.set({u'user': user, u'p': p, u'q': q, u'g': g, u'n': n, u't': t, u'pub_key': pub_key, u'share': shares[i]})
     i += 1
+
+doc_ref = db.collection(u'key_params').document(str(uuid.uuid4()))
+doc_ref.set({u'user': sp_user, u'p': p, u'q': q, u'g': g, u'n': n, u't': t,
+             u'pub_key': pub_key, u'share1': shares[-1], u'share2': shares[-2]})
