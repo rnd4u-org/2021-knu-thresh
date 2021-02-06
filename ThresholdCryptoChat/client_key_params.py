@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import firestore, credentials
 import json
 
-cred = credentials.Certificate(r'C:\GAMES\SecretFolder\thresholdcryptochat-firebase-adminsdk-efq0t-9f4616190a.json')
+cred = credentials.Certificate(r'C:\GAMES\SecretFolder\votechatcrypto-firebase-adminsdk-qr0f2-6de712738a.json')
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
