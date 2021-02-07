@@ -8,7 +8,7 @@ from session import SessionParameters, SessionError
 class VSSTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.session_parameters = SessionParameters(7, 5, 0, 4)
+        self.session_parameters = SessionParameters(7, 4, 1, 4)
         self.dealer = Dealer()
         self.node = Node()
         self.nodes = session.create_nodes(7)
@@ -17,7 +17,7 @@ class VSSTestCase(unittest.TestCase):
             node.set_initialization_parameters(self.nodes.index(node) + 1)
         self.dealer.set_session_parameters(self.session_parameters)
         self.node.set_session_parameters(self.session_parameters)
-        self.pd_results_polynoms, self.pd_results_matrix = session.pd_send_messages(self.dealer, self.nodes)
+        self.pd_results_polynoms, self.pd_results_matrix = session.pd_send_messages(self.dealer, self.nodes, 2048)
         self.echos_results, self.echos_results_matrix = session.echo_send_messages(self.nodes,
                                                                                    self.dealer.session_parameters.n,
                                                                                    self.pd_results_polynoms,
@@ -27,6 +27,7 @@ class VSSTestCase(unittest.TestCase):
                                     self.echos_results_matrix)
         session.recovering_initialization(self.nodes, self.dealer)
         self.dealer2 = Dealer()
+        self.dealer2.static_2048_key_parameters()
         self.dealer2.generate_secret()
         self.secret = self.dealer2.secret
         self.polynom = self.dealer.generate_polynom()
@@ -73,10 +74,10 @@ class VSSTestCase(unittest.TestCase):
         self.assertEqual(len(self.dealer.generate_polynom_i(self.polynom, 1)), self.dealer.session_parameters.t + 1)
 
     def test_check_call_dealer(self):
-        prime_p, gen_g, matrix_CPd, polynoms = self.dealer.call_dealer()
+        prime_p, prime_q, gen_g, matrix_CPd, polynoms = self.dealer.call_dealer(2048)
 
     def test_check_pd_send_messages(self):
-        pd_results_polynoms, pd_results_matrix = session.pd_send_messages(self.dealer, self.nodes)
+        pd_results_polynoms, pd_results_matrix = session.pd_send_messages(self.dealer, self.nodes, 2048)
 
     def test_check_echo_send_messages(self):
         echos_results, echos_results_matrix = session.echo_send_messages(self.nodes, self.session_parameters.n, self.pd_results_polynoms, self.pd_results_matrix)
