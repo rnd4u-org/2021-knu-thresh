@@ -11,32 +11,32 @@ if __name__ == "__main__":
     nodes = create_nodes(5)
 
     # n = 5 = 2t+f+1, t = 2, f = 1
-    time.perf_counter()
+    t1 = time.perf_counter()
     sharing_initialization(dealer, nodes, 512, 5, 2, 1)
     recovering_initialization(nodes, dealer)
-    print(time.process_time(), 'seconds\n')
+    print(time.perf_counter() - t1, 'seconds\n')
 
     # n = 5, t = 3, f = 0
-    time.perf_counter()
+    t1 = time.perf_counter()
     sharing_initialization(dealer, nodes, 512, 5, 3, 0)
     recovering_initialization(nodes, dealer)
-    print(time.process_time(), 'seconds\n')
+    print(time.perf_counter() - t1, 'seconds\n')
 
     # n = 5, t = 4, f = 0
-    time.perf_counter()
+    t1 = time.perf_counter()
     sharing_initialization(dealer, nodes, 512, 5, 4, 0)
     recovering_initialization(nodes, dealer)
-    print(time.process_time(), 'seconds\n')
+    print(time.perf_counter() - t1, 'seconds\n')
 
     # Length of key parameters: 2048 bites
     # n = 10, t = 7, f = 0
     dealer = Dealer()
     nodes = create_nodes(10)
 
-    time.perf_counter()
+    t1 = time.perf_counter()
     sharing_initialization(dealer, nodes, 2048, 10, 7, 0)
     recovering_initialization(nodes, dealer)
-    print(time.process_time(), 'seconds')
+    print(time.perf_counter() - t1, 'seconds')
 
 """
 RESULTS:  verify_poly+, verify_point+; verify_share- 
