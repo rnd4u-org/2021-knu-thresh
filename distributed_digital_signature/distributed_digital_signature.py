@@ -1,5 +1,6 @@
 from threshold_crypto import number
-from random import randint, randrange
+import lagrange_interpolation as li
+from random import randint
 import hashlib
 import bn256
 
@@ -140,6 +141,11 @@ def session(players):
     sigma_i_list, signers_indexes_list_S = share_verification_all(players, verification_keys, message, honest_indexes_list)
     print('share', sigma_i_list)
     print("honest players", signers_indexes_list_S)
+    sigma = combine_shares(players, sigma_i_list, signers_indexes_list_S)
+    print()
+    print(sigma)
+    verify_signature(players[0].public_key, message, sigma, players[0].SP.g2_z, players[0].SP.g2_r)
+
 
 
 def first_message(players):
@@ -178,10 +184,10 @@ def third_message(players, verificate_list):
 def fourth_message(players, honest_indexse_list):
 
     verification_keys = []
-
+    print("ttttt", type(bn256.gfp_6_zero), bn256.gfp_6_zero)
     for i in range(1, players[0].SP.n + 1):
         if i not in honest_indexse_list:
-            VK = [bn256.gfp_6_zero, bn256.gfp_6_zero]
+            VK = [bn256.gfp_6_zero, bn256.gfp_6_zero] ######
             verification_keys.append(VK)
         else:
             VK = players[i-1].calculate_self_verification_key()
@@ -222,20 +228,44 @@ def share_verification_all(players, verification_keys, message, honest_indexes_l
 
 
 # Combine(PK, VK, M, {(i, σi)}i∈S):
-def combine_shares(PK, message, sigma_i_list, signers_indexes_list_S):
+def combine_shares(players, sigma_i_list, signers_indexes_list_S):
     # Given a (t+1)-set with valid shares {(i, σi)}i∈S,
     # compute (z, r) by Lagrange interpolation in the exponent.
-    z = [0, 0]
-    r = [0, 0]
+    values1 = []
+    values2 = []
+    for i in signers_indexes_list_S:
+        value1, value2 = players[i-1].interpolate_two_points()
+        values1.append(value1)
+        values2.append(value2)
+    z = sigma_i_list[0][0].scalar_mul(values1[0])
+    r = sigma_i_list[0][1].scalar_mul(values2[0])
+    for i in range(1, len(signers_indexes_list_S)):
+        z = z.add((sigma_i_list[i][0].scalar_mul(values1[i])))
+        r = r.add((sigma_i_list[i][1].scalar_mul(values1[i])))
     return [z, r]
 
 
 # Verify (PK, message, σ)
-def verify_signature(params, PK, message, sigma):
+def verify_signature(PK, message, sigma, g2_z, g2_r):
     # Given a purported signature σ = (z, r) ∈ G2
     # compute (H1, H2) = H(M) ∈ G×G
     # and return 1 if and only if the following equality holds:
     # e(z, gˆz) · e(r, gˆr) · e(H1, gˆ1) · e(H2, gˆ2) = 1GT
+    hash1, hash2 = calculate_message_hash(message)
+    a = bn256.optimal_ate(g2_z, sigma[0])
+    b = bn256.optimal_ate(g2_r, sigma[1])
+    c = bn256.optimal_ate(PK[0], hash1)
+    d = bn256.optimal_ate(PK[1], hash2)
+    print("verify_signature")
+    e = a.mul(b)
+    print(e)
+    e = e.mul(c)
+    print(e)
+    e = e.mul(d)
+    print(e)
+    print(type(e))
+    print(e.is_one())
+
     return True
 
 
@@ -355,6 +385,7 @@ class Player:
         is_verified = []
         self.all_W = other_W
         self.other_points = other_points
+        # print(self.other_points)
         for i in range(1, self.SP.n + 1):
             is_verified.append((i, self.partial_verification_W_and_points(other_W[i - 1], other_points[i - 1])))
         return is_verified
@@ -364,12 +395,13 @@ class Player:
 
     def calculate_public_key(self):
         zero = bn256.gfp_2_zero
-        g1 = bn256.curve_twist(zero,zero,zero)
-        g2 = bn256.curve_twist(zero,zero,zero)
+        g1 = bn256.curve_twist(zero, zero, zero)
+        g2 = bn256.curve_twist(zero, zero, zero)
         for i in self.honest_Q:
             W = self.all_W[i - 1]
             g1 = bn256.g2_add(g1, W[1][0])
             g2 = bn256.g2_add(g2, W[2][0])
+        print(type(g1), g1)
         self.public_key = [g1, g2]
 
     def calculate_private_key(self):
@@ -406,6 +438,23 @@ class Player:
         r_i = bn256.g1_add(hash1.scalar_mul(b1), hash2.scalar_mul(b2))
         sigma_i = (z_i, r_i)
         return sigma_i
+
+    def interpolate_two_points(self):
+        points1_x = []
+        points1_y = []
+        for i in range(len(self.other_points)):
+            points1_x.append(self.other_points[i][1][0])
+            points1_y.append(self.other_points[i][1][1])
+
+        points2_x = []
+        points2_y = []
+        for i in range(len(self.other_points)):
+            points2_x.append(self.other_points[i][2][0])
+            points2_y.append(self.other_points[i][2][1])
+
+        value_1 = li.lagrange_interpolate(0, points1_x, points1_y, self.SP.p)
+        value_2 = li.lagrange_interpolate(0, points2_x, points2_y, self.SP.p)
+        return value_1, value_2
 
 
 players = create_players(6)
