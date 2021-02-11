@@ -1,5 +1,6 @@
 from number import *
 from VSS import *
+from Parameters import *
 
 class Session:
 
@@ -15,6 +16,8 @@ class Session:
         self.secret = None
         self.setParams(params)
         self.sharePhase = SharePhase(n, t, f, tau, params)
+        self.recPhase = None
+        self.reconstructed = None
 
     def setParams(self, params):
         self.p = params['p']
@@ -37,12 +40,35 @@ class Session:
         alphas_lst_echo = []
         for i in range(self.n):
             node = self.sharePhase.participants[i]
+            alphas = []
             for j in range(self.n):
-                C, alphas = self.sharePhase.echo(node, C_lst[j], j+1, alphas_lst[j][i])
-            C_lst_echo.append(C)
+                C, alpha = self.sharePhase.echo(node, C_lst[j], j+1, alphas_lst[j][i])
+                alphas.append(alpha)
+            if C != 0:
+                C_lst_echo.append(C)
             alphas_lst_echo.append(alphas)
 
         for i in range(self.n):
             node = self.sharePhase.participants[i]
             for j in range(self.n):
-                self.sharePhase.ready(node, C_lst_echo[i], i + 1, alphas_lst_echo[i][j])
+                self.sharePhase.ready(node, C_lst_echo[i], i + 1, alphas_lst_echo[i][j], j)
+
+    def reconstruct(self):
+        self.recPhase = ReconstructionPhase(self.sharePhase)
+        for i in range(self.n):
+            self.recPhase.reconstruct(i)
+
+        for node in self.recPhase.participants:
+            for j in range(self.n):
+                self.recPhase.reconstructShare(self.recPhase.participants[j], node)
+
+
+s = Session(5, 2, 1, 6, Parameters.static_1024_key_parameters())
+s.generateSecret()
+print("SECRET:", s.secret)
+s.shareSecret()
+s.reconstruct()
+print("DIFFERENCE")
+print(s.secret - s.recPhase.participants[0].z)
+print("RECONSTRUCTED")
+print(*s.recPhase.participants)

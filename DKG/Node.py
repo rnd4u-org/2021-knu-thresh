@@ -12,3 +12,6 @@ class Node:
         self.S = None
         self.z = None
         self.a = None
+
+    def __str__(self):
+        return str(self.z)

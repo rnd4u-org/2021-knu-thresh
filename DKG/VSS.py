@@ -1,6 +1,7 @@
 import numpy as np
 from number import *
 from lagrange_interpolate import *
+from Node import *
 
 class SharePhase:
 
@@ -73,7 +74,6 @@ class SharePhase:
                     a[i] = (a[i] + matr[l][i]) % self.p
             #matr = phi*x
             #a = np.sum(matr, axis=0)
-            print("sending to ", j)
             #self.send(self.participants[j], C, a)
             self.participants[j].C = C
             self.participants[j].a = a
@@ -83,7 +83,7 @@ class SharePhase:
         if self.verify_poly(C, i, a):
             alphas = []
             for j in range(self.n):
-                print(j, self.n, len(self.participants))
+                #print(j, self.n, len(self.participants))
                 node_ = self.participants[j]
                 #y = (j + 1)**np.arange(n+1)
                 #alpha = np.mod(np.sum(a*y), self.q)
@@ -92,9 +92,8 @@ class SharePhase:
                     alpha += a[k] * ((j+1)**k)
                 alpha = alpha % self.q
                 alphas.append(alpha)
-                print("echo to ", j)
                 #self.echo(node_, C, i, alpha)
-            return C, alphas
+        return C, alphas
 
     def echo(self, node, C, m, alpha):
         i = node.id
@@ -103,7 +102,7 @@ class SharePhase:
             node.Ac.append([m, alpha])
             node.e_c += 1
             if node.e_c == int((self.n + self.t + 1) / 2) + 1 and node.r_c < self.t + 1:
-                a_list = []
+                a_lst = []
                 for j in range(self.n):
                     node_ = self.participants[j]
                     #a_ = lagrange_interpolate(j+1, list(node.Ac[:, :1].reshape((1, node.Ac.shape[0]))[0]),
@@ -111,32 +110,30 @@ class SharePhase:
                     x = [el[0] for el in node.Ac]
                     y = [el[1] for el in node.Ac]
                     a_ = lagrange_interpolate(j+1, x, y, self.p)
-                    print("ready to ", j)
                     #self.ready(node_, C, i, a_)
-                    a_list.append(alpha)
-                return C, a_list
+                return C, a_lst
+            else:
+                return 0, 0
 
-    def ready(self, node, C, m, alpha):
+    def ready(self, node, C, m, alpha, j):
         i = node.id
         if self.verify_point(C, i, m, alpha):
             #np.anppend(node.Ac, np.array([m, alpha]))
-            node.Ac.append([m, alpha])
+            #node.Ac.append([m, alpha])
             node.r_c += 1
-            if node.r_c == self.t + 1 and node.e_c < int((self.n + self.t + 1) / 2):
-                for j in range(n):
-                    node_ = self.participants[j]
-                    #a_ = lagrange_interpolate(j+1, list(node.Ac[:, :1].reshape((1, node.Ac.shape[0]))[0]),
-                    #                          list(node.Ac[:, 1:].reshape((1, node.Ac.shape[0]))[0]), p)
-                    x = [el[0] for el in node.Ac]
-                    y = [el[1] for el in node.Ac]
-                    a_ = lagrange_interpolate(j+1, x, y, self.p)
-                    print("readyyy to ", j)
-                    self.ready(node_, C, i, a_)
-            elif node.r_c == self.n - self.t - self.f:
+            #if node.r_c == self.t + 1 and node.e_c < int((self.n + self.t + 1) / 2):
+            #    node_ = self.participants[j]
+            #    #a_ = lagrange_interpolate(j+1, list(node.Ac[:, :1].reshape((1, node.Ac.shape[0]))[0]),
+            #    #                          list(node.Ac[:, 1:].reshape((1, node.Ac.shape[0]))[0]), p)
+            #    x = [el[0] for el in node.Ac]
+            #    y = [el[1] for el in node.Ac]
+            #    a_ = lagrange_interpolate(j+1, x, y, self.p)
+            #    print("readyyy to ", j)
+            #    self.ready(node_, C, i, a_)
+            if node.r_c == self.n - self.t - self.f:
                 x = [el[0] for el in node.Ac]
                 y = [el[1] for el in node.Ac]
-                print("secret shares ", i)
-                self.s = lagrange_interpolate(j+1, x, y, self.p)
+                node.s = lagrange_interpolate(j+1, x, y, self.p)
                 #self.s = lagrange_interpolate(0, list(node.Ac[:, :1].reshape((1, node.Ac.shape[0]))[0]),
                 #                              list(node.Ac[:, 1:].reshape((1, node.Ac.shape[0]))[0]), p)
 
@@ -155,12 +152,13 @@ class ReconstructionPhase:
     def reconstruct(self, i):
         node_i = self.participants[i]
         node_i.c = 0
-        node_i.S = np.array([])
-        for node in self.participants:
-            self.reconstructShare(node, node_i, self.participants[i].s)
+        node_i.S = []
+        #for node in self.participants:
+        #    self.reconstructShare(node, node_i, self.participants[i].s)
 
-    def reconstructShare(self, node, node_i, s):
+    def reconstructShare(self, node, node_i):
         m = node_i.id
+        s = node_i.s
         #val1 = np.power(self.g, np.mod(s, self.q))
         #mj = m**np.arange(self.t + 1)
         #val2 = np.mod(np.prod(np.power(node_i.C[:, :1].reshape(1, node_i.C.shape[0])[0], mj)), p)
@@ -173,4 +171,4 @@ class ReconstructionPhase:
             if node.c == self.t+1:
                 x = [el[0] for el in node.S]
                 y = [el[1] for el in node.S]
-                node.z = lagrange_interpolate(0, x, y, p)
+                node.z = lagrange_interpolate(0, x, y, self.p)
