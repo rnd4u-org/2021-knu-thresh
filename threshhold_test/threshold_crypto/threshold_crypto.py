@@ -108,7 +108,7 @@ class KeyParameters:
     - Primes p, q with p = 2q + 1
     - Generator g of q-ordered subgroup Z_q* of Z_p*
     """
-
+    #парсинг
     @staticmethod
     def from_json(json_str: str):
         obj = json.loads(json_str)
@@ -156,7 +156,7 @@ class KeyParameters:
             'q': self._q,
             'g': self._g
         }
-
+    #кодирование
     def to_json(self):
         return json.dumps(self.to_dict())
 
